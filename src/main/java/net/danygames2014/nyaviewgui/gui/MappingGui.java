@@ -1,11 +1,5 @@
 package net.danygames2014.nyaviewgui.gui;
 
-import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
-import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import net.danygames2014.nyaview.NyaView;
 import net.danygames2014.nyaview.mapping.MappingType;
 import net.danygames2014.nyaview.mapping.Mappings;
@@ -21,11 +15,11 @@ import net.danygames2014.nyaviewgui.NyaViewGui;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 @SuppressWarnings({"DuplicatedCode", "CommentedOutCode"})
@@ -45,7 +39,7 @@ public class MappingGui extends JFrame {
     public JTextField searchField;
     public JButton searchButton;
     public JComboBox<SearchParameters.SearchType> searchComboBox;
-    public JComboBox<MappingType> mappingComboBox;
+    public JComboBox<SearchParameters.SearchMappings> mappingComboBox;
     public JComboBox<SearchParameters.MatchType> matchComboBox;
     public JCheckBox caseSensitive;
 
@@ -126,7 +120,7 @@ public class MappingGui extends JFrame {
         leftToolbarPanel.add(new JLabel("Search "));
 
         searchField = new JTextField("", 40);
-        searchField.addActionListener(e -> 
+        searchField.addActionListener(e ->
                 search(searchField.getText())
         );
         searchField.addCaretListener(e -> {
@@ -137,24 +131,51 @@ public class MappingGui extends JFrame {
         leftToolbarPanel.add(searchField);
 
         searchButton = new JButton("Search");
-        searchButton.addActionListener(e -> 
+        searchButton.addActionListener(e ->
                 search(searchField.getText())
         );
         leftToolbarPanel.add(searchButton);
 
         searchComboBox = new JComboBox<>();
         searchComboBox.setModel(new DefaultComboBoxModel<>(SearchParameters.SearchType.values()));
+        searchComboBox.setSelectedIndex(Search.defaultType.ordinal());
+        searchComboBox.addActionListener(e -> {
+            Search.defaultType = SearchParameters.SearchType.values()[searchComboBox.getSelectedIndex()];
+            if (liveSearchMenuItem.isSelected()) {
+                search(searchField.getText());
+            }
+        });
         leftToolbarPanel.add(searchComboBox);
-        
+
         mappingComboBox = new JComboBox<>();
-        mappingComboBox.setModel(new DefaultComboBoxModel<>(MappingType.values()));
+        mappingComboBox.setModel(new DefaultComboBoxModel<>(SearchParameters.SearchMappings.values()));
+        mappingComboBox.setSelectedIndex(Search.defaultMappings.ordinal());
+        mappingComboBox.addActionListener(e -> {
+            Search.defaultMappings = SearchParameters.SearchMappings.values()[mappingComboBox.getSelectedIndex()];
+            if (liveSearchMenuItem.isSelected()) {
+                search(searchField.getText());
+            }
+        });
         leftToolbarPanel.add(mappingComboBox);
-        
+
         matchComboBox = new JComboBox<>();
         matchComboBox.setModel(new DefaultComboBoxModel<>(SearchParameters.MatchType.values()));
+        matchComboBox.setSelectedIndex(Search.defaultMatch.ordinal());
+        matchComboBox.addActionListener(e -> {
+            Search.defaultMatch = SearchParameters.MatchType.values()[matchComboBox.getSelectedIndex()];
+            if (liveSearchMenuItem.isSelected()) {
+                search(searchField.getText());
+            }
+        });
         leftToolbarPanel.add(matchComboBox);
-        
+
         caseSensitive = new JCheckBox("Case Sensitive");
+        caseSensitive.addActionListener(e -> {
+            Search.defaultCaseSensitive = caseSensitive.isSelected();
+            if (liveSearchMenuItem.isSelected()) {
+                search(searchField.getText());
+            }
+        });
         leftToolbarPanel.add(caseSensitive);
 
         GridBagConstraints leftToolbarConstraint = new GridBagConstraints();
@@ -202,19 +223,19 @@ public class MappingGui extends JFrame {
 
         refreshOnFilterMenuItem = new JCheckBoxMenuItem("Refresh On Filter Change", NyaViewGui.guiConfig.getOption("refreshOnFilterChange"));
         refreshOnFilterMenuItem.addActionListener(e -> {
-           NyaViewGui.guiConfig.setOption("refreshOnFilterChange",  refreshOnFilterMenuItem.isSelected()); 
+            NyaViewGui.guiConfig.setOption("refreshOnFilterChange", refreshOnFilterMenuItem.isSelected());
         });
         optionsPopup.add(refreshOnFilterMenuItem);
 
         liveSearchMenuItem = new JCheckBoxMenuItem("Live Search", NyaViewGui.guiConfig.getOption("liveSearch"));
         liveSearchMenuItem.addActionListener(e -> {
-            NyaViewGui.guiConfig.setOption("liveSearch",  liveSearchMenuItem.isSelected());
+            NyaViewGui.guiConfig.setOption("liveSearch", liveSearchMenuItem.isSelected());
         });
         optionsPopup.add(liveSearchMenuItem);
 
         tabbedMembers = new JCheckBoxMenuItem("Tabbed Members", NyaViewGui.guiConfig.getOption("tabbedMembers"));
         tabbedMembers.addActionListener(e -> {
-            NyaViewGui.guiConfig.setOption("tabbedMembers",  tabbedMembers.isSelected());
+            NyaViewGui.guiConfig.setOption("tabbedMembers", tabbedMembers.isSelected());
             swapMemberLayer(tabbedMembers.isSelected());
         });
         optionsPopup.add(tabbedMembers);
@@ -284,6 +305,35 @@ public class MappingGui extends JFrame {
 //            mainSplitPane.add(methodFieldSplitPane);
 //        }
 
+        MouseListener mouseListener = new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getButton() == MouseEvent.BUTTON3) {
+                    memberLayout.next(memberPanel);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
+        
         methodTable = new JTable(methodTableModel);
         methodTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         methodTable.setAutoCreateRowSorter(true);
@@ -293,6 +343,7 @@ public class MappingGui extends JFrame {
         methodTable.getTableHeader().setReorderingAllowed(false);
         methodTable.setShowGrid(true);
         methodTable.setDefaultEditor(Object.class, null);
+        methodTable.addMouseListener(mouseListener);
         methodScrollPane = new JScrollPane(methodTable);
         //memberPanel.add(methodScrollPane, "methods");
         //methodFieldSplitPane.add(methodScrollPane);
@@ -306,6 +357,7 @@ public class MappingGui extends JFrame {
         fieldTable.getTableHeader().setReorderingAllowed(false);
         fieldTable.setShowGrid(true);
         fieldTable.setDefaultEditor(Object.class, null);
+        fieldTable.addMouseListener(mouseListener);
         fieldScrollPane = new JScrollPane(fieldTable);
         //memberPanel.add(fieldScrollPane, "fields");
         //methodFieldSplitPane.add(fieldScrollPane);
