@@ -16,7 +16,7 @@ public class ClassTableModel extends DefaultTableModel {
         classMappingEntries.add(classEntry);
         super.addRow(rowData);
     }
-    
+
     public ClassMappingEntry getClassMappingEntry(int row) {
         return classMappingEntries.get(row);
     }

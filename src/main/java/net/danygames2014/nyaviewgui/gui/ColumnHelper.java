@@ -22,7 +22,7 @@ public class ColumnHelper {
     public static void add(String key) {
         allowedColumns.put(key, true);
     }
-    
+
     public static boolean isAllowed(String key) {
         return allowedColumns.getOrDefault(key, false);
     }

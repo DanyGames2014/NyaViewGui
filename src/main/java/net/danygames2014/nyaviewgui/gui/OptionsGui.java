@@ -14,13 +14,13 @@ public class OptionsGui extends JFrame {
     /* Main Layout */
     public JPanel mainPanel;
     public GridLayout mainLayout;
-    
+
     public JPanel intermediariesPanel;
     public GridBagLayout intermediariesLayout;
-    
+
     public JPanel mappingsPanel;
     public GridBagLayout mappingsLayout;
-    
+
     public JPanel downloadPanel;
     public GridBagLayout downloadLayout;
 
@@ -38,28 +38,28 @@ public class OptionsGui extends JFrame {
 
     public void initialize() {
         // Main Panel
-        mainLayout = new GridLayout(3,1);
+        mainLayout = new GridLayout(3, 1);
         mainPanel = new JPanel(mainLayout);
 
         font = new Font(UIManager.getFont("Label.font").getName(), Font.PLAIN, 20);
-        
+
         // Intermediaries
         initIntermediaries();
         mainPanel.add(intermediariesPanel);
-        
+
         // Mappings
         initMappings();
         mainPanel.add(mappingsPanel);
-        
+
         // Download
         initDownloads();
         mainPanel.add(downloadPanel);
-        
+
         // Add main panel to the frame
         this.add(mainPanel);
     }
-    
-    public void initIntermediaries(){
+
+    public void initIntermediaries() {
         intermediariesLayout = new GridBagLayout();
         intermediariesPanel = new JPanel(intermediariesLayout);
 
@@ -97,7 +97,7 @@ public class OptionsGui extends JFrame {
                 ActionResult result = new ActionResult(69420, "Not Yet Implemented");
                 Util.showDialog(this, result);
             });
-            
+
             JButton downloadButton = new JButton("Remove");
             downloadButton.addActionListener(e -> {
                 ActionResult result = NyaView.config.removeIntermediaries(item.getKey());
@@ -105,21 +105,21 @@ public class OptionsGui extends JFrame {
                 reInitMappings();
                 reloadWindow();
             });
-            
+
             cs.anchor = GridBagConstraints.LINE_END;
             cs.weightx = 0;
-            
+
             cs.gridx = 1;
             panel.add(editButton, cs);
 
             cs.gridx = 2;
             panel.add(downloadButton, cs);
-            
+
             intermediariesPanel.add(panel, c);
         }
     }
-    
-    public void initMappings(){
+
+    public void initMappings() {
         mappingsLayout = new GridBagLayout();
         mappingsPanel = new JPanel(mappingsLayout);
 
@@ -154,10 +154,10 @@ public class OptionsGui extends JFrame {
             // Remove Button
             JButton editButton = new JButton("Edit");
             editButton.addActionListener(e -> {
-               ActionResult result = new ActionResult(69420, "Not Yet Implemented");
-               Util.showDialog(this, result);
+                ActionResult result = new ActionResult(69420, "Not Yet Implemented");
+                Util.showDialog(this, result);
             });
-            
+
             JButton downloadButton = new JButton("Remove");
             downloadButton.addActionListener(e -> {
                 ActionResult result = NyaView.config.removeMappings(item.getKey());
@@ -165,21 +165,21 @@ public class OptionsGui extends JFrame {
                 reInitMappings();
                 reloadWindow();
             });
-            
+
             cs.anchor = GridBagConstraints.LINE_END;
             cs.weightx = 0;
-            
+
             cs.gridx = 1;
             panel.add(editButton, cs);
-            
+
             cs.gridx = 2;
             panel.add(downloadButton, cs);
 
             mappingsPanel.add(panel, c);
         }
     }
-    
-    public void initDownloads(){
+
+    public void initDownloads() {
         downloadLayout = new GridBagLayout();
         downloadPanel = new JPanel(downloadLayout);
 
@@ -229,15 +229,15 @@ public class OptionsGui extends JFrame {
             downloadPanel.add(panel, c);
         }
     }
-    
-    public void reloadWindow(){
+
+    public void reloadWindow() {
         this.getContentPane().removeAll();
         this.initialize();
         this.revalidate();
         this.repaint();
     }
-    
-    public void reInitMappings(){
+
+    public void reInitMappings() {
         NyaView.init();
         NyaViewGui.mappingGui.initColumnFilters();
         NyaViewGui.mappingGui.initTableModels();

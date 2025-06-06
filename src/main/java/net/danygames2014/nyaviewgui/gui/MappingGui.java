@@ -299,21 +299,28 @@ public class MappingGui extends JFrame {
         MouseListener mouseListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
                     memberLayout.next(memberPanel);
                 }
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+            }
+
             @Override
-            public void mouseReleased(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+            }
+
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {
+            }
+
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+            }
         };
-        
+
         methodTable = new JTable(methodTableModel);
         methodTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         methodTable.setAutoCreateRowSorter(true);
@@ -325,8 +332,6 @@ public class MappingGui extends JFrame {
         methodTable.setDefaultEditor(Object.class, null);
         methodTable.addMouseListener(mouseListener);
         methodScrollPane = new JScrollPane(methodTable);
-        //memberPanel.add(methodScrollPane, "methods");
-        //methodFieldSplitPane.add(methodScrollPane);
 
         fieldTable = new JTable(fieldTableModel);
         fieldTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
@@ -749,11 +754,7 @@ public class MappingGui extends JFrame {
                             for (Mappings mapping : NyaView.loader.mappings.values()) {
                                 if (mapping.type == MappingType.MCP) {
                                     if (ColumnHelper.isAllowed("mcp/" + mapping.id)) {
-                                        if (f.mcp.containsKey(mapping)) {
-                                            r.add(f.mcp.get(mapping));
-                                        } else {
-                                            r.add("");
-                                        }
+                                        r.add(f.mcp.getOrDefault(mapping, ""));
                                     }
                                 }
                             }

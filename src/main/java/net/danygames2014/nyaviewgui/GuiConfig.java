@@ -39,7 +39,7 @@ public class GuiConfig {
         configFile.addDefault("tabbedMembers", false);
         config.save();
     }
-    
+
     public boolean getOption(String key) {
         if (configFile.contains(key)) {
             return configFile.getBoolean(key);
@@ -47,16 +47,16 @@ public class GuiConfig {
         NyaView.LOGGER.warn("Tried to get a non-existent option from config " + key);
         return false;
     }
-    
+
     public void setOption(String key, boolean value) {
         configFile.set(key, value);
         config.save();
     }
-    
+
     public LookAndFeel getTheme() {
         return themes.getOrDefault(configFile.getString("theme"), new FlatLightLaf());
     }
-    
+
     public void setTheme(LookAndFeel theme) {
         for (var themeEntry : themes.entrySet()) {
             if (themeEntry.getValue().equals(theme)) {

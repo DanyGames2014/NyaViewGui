@@ -8,17 +8,17 @@ import javax.swing.*;
 public class NyaViewGui {
     public static MappingGui mappingGui;
     public static GuiConfig guiConfig;
-    
+
     public static void main(String[] args) {
         NyaView.init();
 
         guiConfig = new GuiConfig(NyaView.config);
-        
+
         try {
             UIManager.setLookAndFeel(guiConfig.getTheme());
         } catch (UnsupportedLookAndFeelException ignored) {
         }
-        
+
         mappingGui = new MappingGui();
     }
 }
