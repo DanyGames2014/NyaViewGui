@@ -111,10 +111,79 @@ public class MappingGui extends JFrame {
                 }
 
                 switch (e.getKeyCode()) {
+                    // F1 - Open Help
                     case KeyEvent.VK_F1 -> {
                         if (helpGui == null || !helpGui.isDisplayable()) {
                             helpGui = new HelpGui();
                         }
+                        return true;
+                    }
+
+                    // F2 - Switch Member Tabs
+                    case KeyEvent.VK_F2 -> {
+                        memberLayout.next(memberPanel);
+                        return true;
+                    }
+
+                    // F3 -
+                    case KeyEvent.VK_F3 -> {
+
+                    }
+
+                    // F4 - Toggle Tabbed Members
+                    case KeyEvent.VK_F4 -> {
+                        tabbedMembers.setSelected(!tabbedMembers.isSelected());
+                        NyaViewGui.guiConfig.setOption("tabbedMembers", tabbedMembers.isSelected());
+                        swapMemberLayer(tabbedMembers.isSelected());
+                        return true;
+                    }
+
+                    // F5 - Reload (+SHIFT for full Reload)
+                    case KeyEvent.VK_F5 -> {
+                        reloadData(e.isShiftDown());
+                        return true;
+                    }
+                    
+                    // Alt+S - Focus Search Field (+SHIFT to clear query)
+                    case KeyEvent.VK_S -> {
+                        if(e.isAltDown()) {
+                            if(e.isShiftDown()) {
+                                searchField.setText("");
+                            }
+                            searchField.grabFocus();
+                            return true;
+                        }
+                    }
+                    
+                    // Alt+C - Focus Class Table
+                    case KeyEvent.VK_C -> {
+                        if(e.isAltDown()) {
+                            classTable.grabFocus();
+                            return true;
+                        }
+                    }
+                    
+                    // Alt+F - Focus Field Table
+                    case KeyEvent.VK_F -> {
+                        if(e.isAltDown()) {
+                            fieldTable.grabFocus();
+                            return true;
+                        }
+                    }
+                    
+                    // Alt+M - Focus Method Table
+                    case KeyEvent.VK_M -> {
+                        if(e.isAltDown()) {
+                            methodTable.grabFocus();
+                            return true;
+                        }
+                    }
+                    
+                    case KeyEvent.VK_ESCAPE -> {
+                        mainPanel.grabFocus();
+                        classTable.clearSelection();
+                        methodTable.clearSelection();
+                        fieldTable.clearSelection();
                         return true;
                     }
                 }
@@ -214,17 +283,9 @@ public class MappingGui extends JFrame {
         // Reload Button
         reloadButton = new JButton("Reload");
         reloadButton.addActionListener(e -> {
-            if ((e.getModifiers() & ActionEvent.SHIFT_MASK) != 0) {
-                NyaView.init();
-                initColumnFilters();
-                initTableModels();
-                refreshTableContents();
-                search("");
-            } else {
-                initTableModels();
-                refreshTableContents();
-            }
+            reloadData((e.getModifiers() & ActionEvent.SHIFT_MASK) != 0);
         });
+        reloadButton.setMnemonic(KeyEvent.VK_R);
         rightToolbarPanel.add(reloadButton);
 
         // Column Filter
@@ -240,6 +301,7 @@ public class MappingGui extends JFrame {
         translatorButton.addActionListener(e -> {
             TranslatorGui translatorGui = new TranslatorGui();
         });
+        translatorButton.setMnemonic(KeyEvent.VK_T);
         rightToolbarPanel.add(translatorButton);
 
         // Options
@@ -247,6 +309,7 @@ public class MappingGui extends JFrame {
         optionsButton.addActionListener(e -> {
             optionsPopup.show(optionsButton, 0, optionsButton.getHeight());
         });
+        optionsButton.setMnemonic(KeyEvent.VK_O);
         optionsPopup = new JPopupMenu();
 
         refreshOnFilterMenuItem = new JCheckBoxMenuItem("Refresh On Filter Change", NyaViewGui.guiConfig.getOption("refreshOnFilterChange"));
@@ -315,7 +378,6 @@ public class MappingGui extends JFrame {
         classTable.setDefaultEditor(Object.class, null);
         classTable.getSelectionModel().addListSelectionListener(new ClassTableListener(this, classTable));
 
-
         JScrollPane classScrollPane = new JScrollPane(classTable);
         mainSplitPane.add(classScrollPane);
 
@@ -369,6 +431,19 @@ public class MappingGui extends JFrame {
 
         // Add Main Panel to JFrame
         this.add(mainPanel);
+    }
+
+    public void reloadData(boolean fullReload) {
+        if (fullReload) {
+            NyaView.init();
+            initColumnFilters();
+            initTableModels();
+            refreshTableContents();
+            search("");
+        } else {
+            initTableModels();
+            refreshTableContents();
+        }
     }
 
     public JMenuItem themeButton(LookAndFeel lookAndFeel) {
