@@ -111,11 +111,9 @@ public class MappingGui extends JFrame {
         rightToolbarLayout = new FlowLayout(FlowLayout.RIGHT);
 
         toolbarPanel = new JPanel(toolbarLayout);
-        //toolbarPanel.setBackground(Color.CYAN);
 
         // Left Toolbar
         leftToolbarPanel = new JPanel(leftToolbarLayout);
-        //leftToolbarPanel.setBackground(Color.YELLOW);
 
         leftToolbarPanel.add(new JLabel("Search "));
 
@@ -189,7 +187,6 @@ public class MappingGui extends JFrame {
 
         // Right Toolbar
         rightToolbarPanel = new JPanel(rightToolbarLayout);
-        //rightToolbarPanel.setBackground(Color.RED);
 
         // Reload Button
         reloadButton = new JButton("Reload");
@@ -299,12 +296,6 @@ public class MappingGui extends JFrame {
         methodFieldSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         methodFieldSplitPane.setDividerSize(5);
 
-//        if (tabbedClassMembers) {
-//            mainSplitPane.add(memberPanel);
-//        } else {
-//            mainSplitPane.add(methodFieldSplitPane);
-//        }
-
         MouseListener mouseListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -314,24 +305,13 @@ public class MappingGui extends JFrame {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
+            public void mousePressed(MouseEvent e) {}
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
+            public void mouseReleased(MouseEvent e) {}
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
+            public void mouseEntered(MouseEvent e) {}
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         };
         
         methodTable = new JTable(methodTableModel);
@@ -359,8 +339,6 @@ public class MappingGui extends JFrame {
         fieldTable.setDefaultEditor(Object.class, null);
         fieldTable.addMouseListener(mouseListener);
         fieldScrollPane = new JScrollPane(fieldTable);
-        //memberPanel.add(fieldScrollPane, "fields");
-        //methodFieldSplitPane.add(fieldScrollPane);
 
         swapMemberLayer(tabbedMembers.isSelected());
 
@@ -368,14 +346,6 @@ public class MappingGui extends JFrame {
         methodFieldSplitPane.setResizeWeight(0.4d);
 
         mainPanel.add(mainSplitPane, BorderLayout.CENTER);
-
-        // Create Menu
-//        menuBar = new JMenuBar();
-//        menu = new JMenu("Menu");
-//        menu.setMnemonic(KeyEvent.VK_M);
-//
-//        menuBar.add(menu);
-//        this.setJMenuBar(menuBar);
 
         // Add Main Panel to JFrame
         this.add(mainPanel);
@@ -775,10 +745,6 @@ public class MappingGui extends JFrame {
                         for (var f : fields) {
                             ArrayList<String> r = new ArrayList<>();
 
-//                            if(ColumnHelper.isAllowed("environment")) {
-//                                r.add(f.environment.toString());
-//                            }
-
                             // MCP
                             for (Mappings mapping : NyaView.loader.mappings.values()) {
                                 if (mapping.type == MappingType.MCP) {
@@ -805,11 +771,7 @@ public class MappingGui extends JFrame {
                             // Intermediary
                             for (var intermediary : NyaView.loader.intermediaries.values()) {
                                 if (ColumnHelper.isAllowed("intermediary/" + intermediary.id)) {
-                                    if (f.intermediary.containsKey(intermediary)) {
-                                        r.add(f.intermediary.get(intermediary));
-                                    } else {
-                                        r.add("");
-                                    }
+                                    r.add(f.intermediary.getOrDefault(intermediary, ""));
                                 }
                             }
 
@@ -817,11 +779,7 @@ public class MappingGui extends JFrame {
                             for (Mappings mapping : NyaView.loader.mappings.values()) {
                                 if (mapping.type == MappingType.BABRIC) {
                                     if (ColumnHelper.isAllowed("fabric/" + mapping.id)) {
-                                        if (f.babric.containsKey(mapping)) {
-                                            r.add(f.babric.get(mapping));
-                                        } else {
-                                            r.add("");
-                                        }
+                                        r.add(f.babric.getOrDefault(mapping, ""));
                                     }
                                 }
                             }
