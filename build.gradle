@@ -1,0 +1,62 @@
+plugins {
+    id 'com.gradleup.shadow' version '9.0.0-beta15'
+    id 'maven-publish'
+    id 'java'
+}
+
+archivesBaseName = project.archives_base_name
+version = project.version
+group = project.maven_group
+
+repositories {
+    maven {
+        name = "nyarepo"
+        url = "https://maven.fildand.cz/releases"
+    }
+
+    maven {
+        name = "Glass Maven Releases"
+        url = "https://maven.glass-launcher.net/releases"
+    }
+
+    mavenCentral()
+}
+
+dependencies {
+    implementation("me.carleslc:Simple-Yaml:1.8.4")
+    implementation("net.fabricmc:mapping-io:${project.mappingio_version}")
+    implementation("net.danygames2014:NyaViewLib:${project.nyaviewlib_version}"){
+        changing = true
+    }
+    implementation("com.formdev:flatlaf:3.6")
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "net.danygames2014.nyaviewgui.NyaViewGui"
+    }
+}
+
+// Maven Publishing
+publishing {
+    repositories {
+        mavenLocal()
+
+        if (project.hasProperty("nyarepo_publishing_cave_username")) {
+            maven {
+                url = "https://maven.fildand.cz/releases"
+                credentials {
+                    username "${project.nyarepo_publishing_cave_username}"
+                    password "${project.nyarepo_publishing_cave_password}"
+                }
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = archivesBaseName
+            from components.java
+        }
+    }
+}

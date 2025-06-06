@@ -1,0 +1,11 @@
+# --- NyaView Mappings Configuration File ---
+
+# Not Yet Implemented
+downloadVersion: b1.9-pre5
+ignoredPackages: []
+intermediaries: []
+mappings: []
+theme: flatlaf
+refreshOnFilterChange: true
+liveSearch: true
+tabbedMembers: false
