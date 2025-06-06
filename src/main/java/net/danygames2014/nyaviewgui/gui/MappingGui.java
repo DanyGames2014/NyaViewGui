@@ -17,12 +17,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 
-@SuppressWarnings({"DuplicatedCode", "CommentedOutCode"})
+@SuppressWarnings({"DuplicatedCode"})
 public class MappingGui extends JFrame {
     /* Main Layout */
     public JPanel mainPanel;
@@ -83,6 +81,9 @@ public class MappingGui extends JFrame {
     public JCheckBoxMenuItem liveSearchMenuItem;
     public JCheckBoxMenuItem tabbedMembers;
 
+    /* Help */
+    HelpGui helpGui;
+
     /* Search */
     public SearchResult currentSearch = null;
     public SearchParameters currentSearchParameters = null;
@@ -92,12 +93,34 @@ public class MappingGui extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initialize();
+        initKeyboardManager();
 
         this.setSize(1280, 720);
         this.setVisible(true);
 
         initColumnFilters();
         search("");
+    }
+
+    public void initKeyboardManager() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                if (e.getID() != KeyEvent.KEY_PRESSED) {
+                    return false;
+                }
+
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_F1 -> {
+                        if (helpGui == null || !helpGui.isDisplayable()) {
+                            helpGui = new HelpGui();
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     public void initialize() {
@@ -191,8 +214,16 @@ public class MappingGui extends JFrame {
         // Reload Button
         reloadButton = new JButton("Reload");
         reloadButton.addActionListener(e -> {
-            initTableModels();
-            refreshTableContents();
+            if ((e.getModifiers() & ActionEvent.SHIFT_MASK) != 0) {
+                NyaView.init();
+                initColumnFilters();
+                initTableModels();
+                refreshTableContents();
+                search("");
+            } else {
+                initTableModels();
+                refreshTableContents();
+            }
         });
         rightToolbarPanel.add(reloadButton);
 
@@ -237,9 +268,9 @@ public class MappingGui extends JFrame {
         });
         optionsPopup.add(tabbedMembers);
 
-        JMenuItem optionsMenuItem = new JMenuItem("Options");
+        JMenuItem optionsMenuItem = new JMenuItem("Mappings Setup");
         optionsMenuItem.addActionListener(e -> {
-            OptionsGui optionsGui = new OptionsGui(this);
+            SetupGui setupGui = new SetupGui(this);
         });
         optionsPopup.add(optionsMenuItem);
 
@@ -296,28 +327,12 @@ public class MappingGui extends JFrame {
         methodFieldSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         methodFieldSplitPane.setDividerSize(5);
 
-        MouseListener mouseListener = new MouseListener() {
+        MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     memberLayout.next(memberPanel);
                 }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         };
 

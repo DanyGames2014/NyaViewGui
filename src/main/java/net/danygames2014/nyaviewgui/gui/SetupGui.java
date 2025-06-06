@@ -10,7 +10,7 @@ import net.danygames2014.nyaviewgui.Util;
 import javax.swing.*;
 import java.awt.*;
 
-public class OptionsGui extends JFrame {
+public class SetupGui extends JFrame {
     /* Main Layout */
     public JPanel mainPanel;
     public GridLayout mainLayout;
@@ -26,7 +26,7 @@ public class OptionsGui extends JFrame {
 
     public Font font;
 
-    public OptionsGui(MappingGui parent) throws HeadlessException {
+    public SetupGui(MappingGui parent) throws HeadlessException {
         super("Options");
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
