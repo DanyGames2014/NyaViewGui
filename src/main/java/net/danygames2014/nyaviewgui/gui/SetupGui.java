@@ -100,7 +100,7 @@ public class SetupGui extends JFrame {
 
             JButton downloadButton = new JButton("Remove");
             downloadButton.addActionListener(e -> {
-                ActionResult result = NyaView.config.removeIntermediaries(item.getKey());
+                ActionResult result = NyaView.profileManager.activeProfile.removeIntermediaries(item.getKey());
                 Util.showDialog(this, result);
                 reInitMappings();
                 reloadWindow();
@@ -160,7 +160,7 @@ public class SetupGui extends JFrame {
 
             JButton downloadButton = new JButton("Remove");
             downloadButton.addActionListener(e -> {
-                ActionResult result = NyaView.config.removeMappings(item.getKey());
+                ActionResult result = NyaView.profileManager.activeProfile.removeMappings(item.getKey());
                 Util.showDialog(this, result);
                 reInitMappings();
                 reloadWindow();
@@ -197,7 +197,7 @@ public class SetupGui extends JFrame {
 
         c.anchor = GridBagConstraints.CENTER;
 
-        var downloadable = NyaView.downloadCatalog.getCatalog(NyaView.config.getDownloadVersion());
+        var downloadable = NyaView.downloadCatalog.getCatalog(NyaView.profileManager.activeProfile.getVersion());
         for (var dl : downloadable.entrySet()) {
             GridBagLayout layout = new GridBagLayout();
             JPanel panel = new JPanel(layout);
