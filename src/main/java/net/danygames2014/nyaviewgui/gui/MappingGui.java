@@ -1,6 +1,8 @@
 package net.danygames2014.nyaviewgui.gui;
 
 import net.danygames2014.nyaview.NyaView;
+import net.danygames2014.nyaview.descriptor.Descriptor;
+import net.danygames2014.nyaview.descriptor.DescriptorParser;
 import net.danygames2014.nyaview.mapping.MappingType;
 import net.danygames2014.nyaview.mapping.Mappings;
 import net.danygames2014.nyaview.mapping.entry.ClassMappingEntry;
@@ -90,6 +92,8 @@ public class MappingGui extends JFrame {
 
     public MappingGui() throws HeadlessException {
         super("NyaView");
+        updateWindowTitle();
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png")));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initialize();
@@ -100,6 +104,10 @@ public class MappingGui extends JFrame {
 
         initColumnFilters();
         search("");
+    }
+    
+    public void updateWindowTitle() {
+        this.setTitle("NyaView (" + NyaView.profileManager.activeProfile.getName() + ")");
     }
 
     public void initKeyboardManager() {
@@ -349,6 +357,14 @@ public class MappingGui extends JFrame {
             themes.add(themeButton(theme));
         }
         optionsPopup.add(themes);
+        
+        JMenuItem helpMenuitem = new JMenuItem("Help");
+        helpMenuitem.addActionListener(e -> {
+            if (helpGui == null || !helpGui.isDisplayable()) {
+                helpGui = new HelpGui();
+            }
+        });
+        optionsPopup.add(helpMenuitem);
 
         GridBagConstraints rightToolbarConstraint = new GridBagConstraints();
         rightToolbarConstraint.fill = GridBagConstraints.VERTICAL;
@@ -815,6 +831,8 @@ public class MappingGui extends JFrame {
                                     if (ColumnHelper.isAllowed("fabric/" + mapping.id)) {
                                         if (m.babric.containsKey(mapping)) {
                                             r.add(m.babric.get(mapping).name);
+                                            // TODO: Render Descriptors
+                                            // r.add(Descriptor.niceString(m.babric.get(mapping)));
                                         } else {
                                             r.add("");
                                         }

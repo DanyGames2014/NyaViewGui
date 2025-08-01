@@ -3,17 +3,40 @@ package net.danygames2014.nyaviewgui.gui;
 import net.danygames2014.nyaview.ActionResult;
 import net.danygames2014.nyaview.NyaView;
 import net.danygames2014.nyaview.download.Downloader;
+import net.danygames2014.nyaview.profile.Profile;
 import net.danygames2014.nyaviewgui.ColorUtil;
 import net.danygames2014.nyaviewgui.NyaViewGui;
 import net.danygames2014.nyaviewgui.Util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 
 public class SetupGui extends JFrame {
+    private final MappingGui parent;
+    
     /* Main Layout */
     public JPanel mainPanel;
-    public GridLayout mainLayout;
+    public BorderLayout mainLayout;
+
+    /* Toolbar */
+    public JPanel toolbarPanel;
+    public GridBagLayout toolbarLayout;
+
+    // Left Toolbar
+    public JPanel leftToolbarPanel;
+    public FlowLayout leftToolbarLayout;
+
+    public JLabel profileLabel;
+    
+    // Right Toolbar
+    public JPanel rightToolbarPanel;
+    public FlowLayout rightToolbarLayout;
+
+    public JComboBox<Profile> profileComboBox;
+
+    public JPanel contentPanel;
+    public GridLayout contentLayout;
 
     public JPanel intermediariesPanel;
     public GridBagLayout intermediariesLayout;
@@ -25,9 +48,11 @@ public class SetupGui extends JFrame {
     public GridBagLayout downloadLayout;
 
     public Font font;
+    public Font smallFont;
 
     public SetupGui(MappingGui parent) throws HeadlessException {
         super("Options");
+        this.parent = parent;
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         initialize();
@@ -38,25 +63,158 @@ public class SetupGui extends JFrame {
 
     public void initialize() {
         // Main Panel
-        mainLayout = new GridLayout(3, 1);
+        mainLayout = new BorderLayout();
         mainPanel = new JPanel(mainLayout);
 
+        // Content Panel
+        contentLayout = new GridLayout(2, 2);
+        contentPanel = new JPanel(contentLayout);
+
         font = new Font(UIManager.getFont("Label.font").getName(), Font.PLAIN, 20);
+        smallFont = new Font(UIManager.getFont("Label.font").getName(), Font.PLAIN, 16);
+
+        // Top Bar
+        initTopBar();
+        mainPanel.add(toolbarPanel, BorderLayout.NORTH);
 
         // Intermediaries
         initIntermediaries();
-        mainPanel.add(intermediariesPanel);
+        contentPanel.add(intermediariesPanel);
 
         // Mappings
         initMappings();
-        mainPanel.add(mappingsPanel);
+        contentPanel.add(mappingsPanel);
 
         // Download
         initDownloads();
-        mainPanel.add(downloadPanel);
+        contentPanel.add(downloadPanel);
+
+        // Add Content Panel to the Main Panel
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         // Add main panel to the frame
         this.add(mainPanel);
+    }
+
+    public void initTopBar() {
+        // Toolbar Panel
+        toolbarLayout = new GridBagLayout();
+        leftToolbarLayout = new FlowLayout(FlowLayout.LEFT);
+        rightToolbarLayout = new FlowLayout(FlowLayout.RIGHT);
+
+        toolbarPanel = new JPanel(toolbarLayout);
+        toolbarPanel.setBackground(ColorUtil.getAlternatePanelColor());
+
+        // Left Toolbar
+        leftToolbarPanel = new JPanel(leftToolbarLayout);
+        leftToolbarPanel.setBackground(ColorUtil.getAlternatePanelColor());
+
+        Profile activeProfile = NyaView.profileManager.activeProfile;
+        profileLabel = new JLabel();
+        updateProfileLabel(activeProfile);
+        profileLabel.setFont(smallFont);
+        leftToolbarPanel.add(profileLabel);
+        
+        GridBagConstraints leftToolbarConstraint = new GridBagConstraints();
+        leftToolbarConstraint.fill = GridBagConstraints.VERTICAL;
+        leftToolbarConstraint.gridx = 0;
+        leftToolbarConstraint.gridy = 0;
+        leftToolbarConstraint.weightx = 0.5;
+        leftToolbarConstraint.insets = new Insets(0, 5, 0, 0);
+        leftToolbarConstraint.anchor = GridBagConstraints.LINE_START;
+
+        toolbarPanel.add(leftToolbarPanel, leftToolbarConstraint);
+
+        // Right Toolbar
+        rightToolbarPanel = new JPanel(rightToolbarLayout);
+        rightToolbarPanel.setBackground(ColorUtil.getAlternatePanelColor());
+
+        JLabel profileSelectLabel = new JLabel("Select Profile: ");
+        profileSelectLabel.setFont(smallFont);
+        rightToolbarPanel.add(profileSelectLabel);
+        
+        initProfileComboBox();
+        
+        JButton newProfileButton = new JButton("Create Profile");
+        newProfileButton.addActionListener(e -> {
+            CreateProfileGui createProfileGui = new CreateProfileGui(this);
+        });
+        rightToolbarPanel.add(newProfileButton);
+
+        GridBagConstraints rightToolbarConstraint = new GridBagConstraints();
+        rightToolbarConstraint.fill = GridBagConstraints.VERTICAL;
+        rightToolbarConstraint.gridx = 1;
+        rightToolbarConstraint.gridy = 0;
+        rightToolbarConstraint.weightx = 0.5;
+        rightToolbarConstraint.insets = new Insets(0, 0, 0, 5);
+        rightToolbarConstraint.anchor = GridBagConstraints.LINE_END;
+
+        toolbarPanel.add(rightToolbarPanel, rightToolbarConstraint);
+    }
+    
+    public void updateProfileLabel(Profile profile) {
+        profileLabel.setText("Active Profile: " + profile.getName() + " (" + profile.getVersion() + ")");
+    }
+    
+    public void updateProfile(Profile profile) {
+        NyaView.profileManager.switchProfile(profile.getId());
+        NyaView.loadMappings();
+        parent.updateWindowTitle();
+        parent.initColumnFilters();
+        parent.initTableModels();
+        parent.refreshTableContents();
+        parent.search("");
+        parent.searchField.setText("");
+        updateProfileLabel(profile);
+        initProfileComboBox();
+        reloadContent();
+    }
+    
+    public void initProfileComboBox() {
+        if (profileComboBox != null) {
+            rightToolbarPanel.remove(profileComboBox);
+        }
+        
+        profileComboBox = new JComboBox<>();
+        profileComboBox.setModel(new DefaultComboBoxModel<>(NyaView.profileManager.getProfiles().values().toArray(new Profile[0])));
+        profileComboBox.setSelectedItem(NyaView.profileManager.activeProfile);
+
+        profileComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                if (e.getItem() instanceof Profile profile) {
+                    updateProfile(profile);
+                }
+            }
+        });
+
+        profileComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Profile profile) {
+                    setText(profile.getName());
+                }
+                return this;
+            }
+        });
+
+        rightToolbarPanel.add(profileComboBox);
+    }
+    
+    public void reloadContent() {
+        contentPanel.removeAll();
+        
+        // Intermediaries
+        initIntermediaries();
+        contentPanel.add(intermediariesPanel);
+
+        // Mappings
+        initMappings();
+        contentPanel.add(mappingsPanel);
+
+        // Download
+        initDownloads();
+        contentPanel.add(downloadPanel);
     }
 
     public void initIntermediaries() {
@@ -158,8 +316,8 @@ public class SetupGui extends JFrame {
                 Util.showDialog(this, result);
             });
 
-            JButton downloadButton = new JButton("Remove");
-            downloadButton.addActionListener(e -> {
+            JButton removeButton = new JButton("Remove");
+            removeButton.addActionListener(e -> {
                 ActionResult result = NyaView.profileManager.activeProfile.removeMappings(item.getKey());
                 Util.showDialog(this, result);
                 reInitMappings();
@@ -173,7 +331,7 @@ public class SetupGui extends JFrame {
             panel.add(editButton, cs);
 
             cs.gridx = 2;
-            panel.add(downloadButton, cs);
+            panel.add(removeButton, cs);
 
             mappingsPanel.add(panel, c);
         }
