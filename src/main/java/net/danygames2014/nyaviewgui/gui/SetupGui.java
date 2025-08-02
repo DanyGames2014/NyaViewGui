@@ -349,7 +349,7 @@ public class SetupGui extends JFrame {
         c.anchor = GridBagConstraints.LINE_START;
 
         // Label
-        JLabel dlLabel = new JLabel(" Avalible Downloads");
+        JLabel dlLabel = new JLabel(" Available Downloads");
         dlLabel.setFont(font);
         downloadPanel.add(dlLabel, c);
 
