@@ -37,6 +37,8 @@ public class GuiConfig {
         configFile.addDefault("refreshOnFilterChange", true);
         configFile.addDefault("liveSearch", true);
         configFile.addDefault("tabbedMembers", false);
+        configFile.addDefault("horizontalScrollbars", false);
+        configFile.addDefault("compactObfuscatedColumns", false);
         config.save();
     }
 

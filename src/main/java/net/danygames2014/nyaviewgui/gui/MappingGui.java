@@ -1,8 +1,6 @@
 package net.danygames2014.nyaviewgui.gui;
 
 import net.danygames2014.nyaview.NyaView;
-import net.danygames2014.nyaview.descriptor.Descriptor;
-import net.danygames2014.nyaview.descriptor.DescriptorParser;
 import net.danygames2014.nyaview.mapping.MappingType;
 import net.danygames2014.nyaview.mapping.Mappings;
 import net.danygames2014.nyaview.mapping.entry.ClassMappingEntry;
@@ -82,6 +80,8 @@ public class MappingGui extends JFrame {
     public JCheckBoxMenuItem refreshOnFilterMenuItem;
     public JCheckBoxMenuItem liveSearchMenuItem;
     public JCheckBoxMenuItem tabbedMembers;
+    public JCheckBoxMenuItem horizontalScrollbars;
+    public JCheckBoxMenuItem compactObfuscatedColumns;
 
     /* Help */
     HelpGui helpGui;
@@ -105,7 +105,7 @@ public class MappingGui extends JFrame {
         initColumnFilters();
         search("");
     }
-    
+
     public void updateWindowTitle() {
         this.setTitle("NyaView (" + NyaView.profileManager.activeProfile.getName() + ")");
     }
@@ -151,42 +151,42 @@ public class MappingGui extends JFrame {
                         reloadData(e.isShiftDown());
                         return true;
                     }
-                    
+
                     // Alt+S - Focus Search Field (+SHIFT to clear query)
                     case KeyEvent.VK_S -> {
-                        if(e.isAltDown()) {
-                            if(e.isShiftDown()) {
+                        if (e.isAltDown()) {
+                            if (e.isShiftDown()) {
                                 searchField.setText("");
                             }
                             searchField.grabFocus();
                             return true;
                         }
                     }
-                    
+
                     // Alt+C - Focus Class Table
                     case KeyEvent.VK_C -> {
-                        if(e.isAltDown()) {
+                        if (e.isAltDown()) {
                             classTable.grabFocus();
                             return true;
                         }
                     }
-                    
+
                     // Alt+F - Focus Field Table
                     case KeyEvent.VK_F -> {
-                        if(e.isAltDown()) {
+                        if (e.isAltDown()) {
                             fieldTable.grabFocus();
                             return true;
                         }
                     }
-                    
+
                     // Alt+M - Focus Method Table
                     case KeyEvent.VK_M -> {
-                        if(e.isAltDown()) {
+                        if (e.isAltDown()) {
                             methodTable.grabFocus();
                             return true;
                         }
                     }
-                    
+
                     case KeyEvent.VK_ESCAPE -> {
                         mainPanel.grabFocus();
                         classTable.clearSelection();
@@ -339,6 +339,21 @@ public class MappingGui extends JFrame {
         });
         optionsPopup.add(tabbedMembers);
 
+        horizontalScrollbars = new JCheckBoxMenuItem("Horizontal Scrollbars", NyaViewGui.guiConfig.getOption("horizontalScrollbars"));
+        horizontalScrollbars.addActionListener(e -> {
+            NyaViewGui.guiConfig.setOption("horizontalScrollbars", horizontalScrollbars.isSelected());
+            adjustColumnWidths();
+        });
+        optionsPopup.add(horizontalScrollbars);
+
+        compactObfuscatedColumns = new JCheckBoxMenuItem("Compact Obfuscated Columns", NyaViewGui.guiConfig.getOption("compactObfuscatedColumns"));
+        compactObfuscatedColumns.addActionListener(e -> {
+            NyaViewGui.guiConfig.setOption("compactObfuscatedColumns", compactObfuscatedColumns.isSelected());
+            adjustColumnWidths();
+        });
+        optionsPopup.add(compactObfuscatedColumns);
+
+
         JMenuItem optionsMenuItem = new JMenuItem("Mappings Setup");
         optionsMenuItem.addActionListener(e -> {
             SetupGui setupGui = new SetupGui(this);
@@ -357,7 +372,7 @@ public class MappingGui extends JFrame {
             themes.add(themeButton(theme));
         }
         optionsPopup.add(themes);
-        
+
         JMenuItem helpMenuitem = new JMenuItem("Help");
         helpMenuitem.addActionListener(e -> {
             if (helpGui == null || !helpGui.isDisplayable()) {
@@ -385,7 +400,7 @@ public class MappingGui extends JFrame {
         // Create Table for Class Mapping Entries
         classTable = new JTable(classTableModel);
         classTable.setAutoCreateRowSorter(true);
-        classTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        classTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         classTable.setRowSelectionAllowed(true);
         classTable.setColumnSelectionAllowed(false);
         classTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -415,7 +430,7 @@ public class MappingGui extends JFrame {
         };
 
         methodTable = new JTable(methodTableModel);
-        methodTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        methodTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         methodTable.setAutoCreateRowSorter(true);
         methodTable.setRowSelectionAllowed(true);
         methodTable.setColumnSelectionAllowed(false);
@@ -427,7 +442,7 @@ public class MappingGui extends JFrame {
         methodScrollPane = new JScrollPane(methodTable);
 
         fieldTable = new JTable(fieldTableModel);
-        fieldTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        fieldTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         fieldTable.setAutoCreateRowSorter(true);
         fieldTable.setRowSelectionAllowed(true);
         fieldTable.setColumnSelectionAllowed(false);
@@ -669,6 +684,8 @@ public class MappingGui extends JFrame {
         classTableModel = initClasTableModel();
 
         classTable.setModel(classTableModel);
+
+        adjustColumnWidths();
     }
 
     public ClassTableModel initClasTableModel() {
@@ -757,6 +774,24 @@ public class MappingGui extends JFrame {
         return tableModel;
     }
 
+    public void adjustColumnWidths() {
+        classTable.setAutoResizeMode(horizontalScrollbars.isSelected() ? JTable.AUTO_RESIZE_OFF : JTable.AUTO_RESIZE_ALL_COLUMNS);
+        SwingUtilities.invokeLater(() -> {
+            ColumnHelper.adjustColumns(classTable);
+        });
+
+        methodTable.setAutoResizeMode(horizontalScrollbars.isSelected() ? JTable.AUTO_RESIZE_OFF : JTable.AUTO_RESIZE_ALL_COLUMNS);
+        SwingUtilities.invokeLater(() -> {
+            ColumnHelper.adjustColumns(methodTable);
+        });
+
+
+        fieldTable.setAutoResizeMode(horizontalScrollbars.isSelected() ? JTable.AUTO_RESIZE_OFF : JTable.AUTO_RESIZE_ALL_COLUMNS);
+        SwingUtilities.invokeLater(() -> {
+            ColumnHelper.adjustColumns(fieldTable);
+        });
+    }
+
     static class ClassTableListener implements ListSelectionListener {
         private final JTable table;
         private final MappingGui gui;
@@ -843,6 +878,7 @@ public class MappingGui extends JFrame {
                             methodTable.addRow(r.toArray());
                         }
                         gui.methodTable.setModel(methodTable);
+                        ColumnHelper.adjustColumns(gui.methodTable);
                         gui.methodTable.setEnabled(true);
 
                         // Fields
@@ -896,6 +932,7 @@ public class MappingGui extends JFrame {
                             fieldTable.addRow(r.toArray());
                         }
                         gui.fieldTable.setModel(fieldTable);
+                        ColumnHelper.adjustColumns(gui.fieldTable);
                         gui.fieldTable.setEnabled(true);
                     }
 

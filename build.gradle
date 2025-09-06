@@ -8,6 +8,12 @@ archivesBaseName = project.archives_base_name
 version = project.version
 group = project.maven_group
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 repositories {
     maven {
         name = "nyarepo"
